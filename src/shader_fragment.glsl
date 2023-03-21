@@ -19,9 +19,10 @@ uniform mat4 view;
 uniform mat4 projection;
 
 // Identificador que define qual objeto está sendo desenhado no momento
-#define SPHERE 0
-#define BUNNY  1
-#define PLANE  2
+#define SPHERE  0
+#define BUNNY   1
+#define PLANE   2
+#define CHICKEN 3
 uniform int object_id;
 
 // Parâmetros da axis-aligned bounding box (AABB) do modelo
@@ -121,6 +122,18 @@ void main()
         U = texcoords.x;
         V = texcoords.y;
     }
+    else if( object_id == CHICKEN )
+    {
+        vec4 bbox_center = (bbox_min + bbox_max) / 2.0;
+        vec4 pl = bbox_center + normalize(position_model - bbox_center);
+        pl = pl - bbox_center;
+
+        float theta = atan(pl.x,pl.z);
+        float phi = asin(pl.y);
+        U = (theta + M_PI) / (2*M_PI);
+        V = (phi + M_PI_2) / M_PI;
+    }
+
 
     // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
     vec3 Kd0 = texture(TextureImage0, vec2(U,V)).rgb;

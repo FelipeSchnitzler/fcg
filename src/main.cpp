@@ -200,7 +200,7 @@ bool g_DPressed = false;
 // efetiva da câmera é calculada dentro da função main(), dentro do loop de
 // renderização.
 float g_CameraTheta = M_PI/4.0f; // Ângulo no plano ZX em relação ao eixo Z
-float g_CameraPhi = 0.0f;   // Ângulo em relação ao eixo Y
+float g_CameraPhi = 0.5f;   // Ângulo em relação ao eixo Y
 float g_CameraDistance = 0.5f; // Distância da câmera para a origem
 
 // Variáveis que controlam rotação do antebraço
@@ -258,7 +258,7 @@ int main(int argc, char* argv[])
     // Criamos uma janela do sistema operacional, com 800 colunas e 600 linhas
     // de pixels, e com título "INF01047 ...".
     GLFWwindow* window;
-    window = glfwCreateWindow(800, 600, "INF01047 - 326477 - Felipe Kaiser Schnitzler", NULL, NULL);
+    window = glfwCreateWindow(800, 600, "INF01047", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -306,6 +306,7 @@ int main(int argc, char* argv[])
     LoadTextureImage("../../data/tc-earth_daymap_surface.jpg");      // TextureImage0
     LoadTextureImage("../../data/tc-earth_nightmap_citylights.gif"); // TextureImage1
 
+
     // Construímos a representação de objetos geométricos através de malhas de triângulos
     ObjModel spheremodel("../../data/sphere.obj");
     ComputeNormals(&spheremodel);
@@ -318,6 +319,10 @@ int main(int argc, char* argv[])
     ObjModel planemodel("../../data/plane.obj");
     ComputeNormals(&planemodel);
     BuildTrianglesAndAddToVirtualScene(&planemodel);
+
+    ObjModel chickenmodel("../../data/chicken.obj");
+    ComputeNormals(&chickenmodel);
+    BuildTrianglesAndAddToVirtualScene(&chickenmodel);
 
     if ( argc > 1 )
     {
@@ -407,7 +412,7 @@ int main(int argc, char* argv[])
             Char_Move_New.x = Char_Move.x*cos(Turn_Speed) - Char_Move.z*sin(Turn_Speed);//rotaciona o movimento do personagem
             Char_Move_New.z = Char_Move.x*sin(Turn_Speed) + Char_Move.z*cos(Turn_Speed);
             MoveDelta = dotproduct(Char_Move_New,Char_Move);
-            UpdateCameraAngle(MoveDelta*0.0029,0.0f);//rotaciona a camera
+            UpdateCameraAngle(MoveDelta*delta_t/2.35,0.0f);//rotaciona a camera
 
             Char_Move.x = Char_Move_New.x;
             Char_Move.z = Char_Move_New.z;
@@ -417,7 +422,7 @@ int main(int argc, char* argv[])
             Char_Move_New.x = Char_Move.x*cos(Turn_Speed) + Char_Move.z*sin(Turn_Speed);//rotaciona o movimento do personagem
             Char_Move_New.z = -Char_Move.x*sin(Turn_Speed) + Char_Move.z*cos(Turn_Speed);
             MoveDelta = dotproduct(Char_Move_New,Char_Move);
-            UpdateCameraAngle(MoveDelta*-0.0029,0.0f);//rotaciona a camera
+            UpdateCameraAngle(-MoveDelta*delta_t/2.35,0.0f);//rotaciona a camera
 
             Char_Move.x = Char_Move_New.x;
             Char_Move.z = Char_Move_New.z;
@@ -468,6 +473,7 @@ int main(int argc, char* argv[])
         #define SPHERE 0
         #define BUNNY  1
         #define PLANE  2
+        #define CHICKEN 3
 
         // Desenhamos o modelo da esfera
         model = Matrix_Translate(-1.0f,0.0f,0.0f)
@@ -492,13 +498,14 @@ int main(int argc, char* argv[])
         glUniform1i(g_object_id_uniform, PLANE);
         DrawVirtualObject("the_plane");
 
+        // Desenhamos a galinha
         model =  Matrix_Translate(camera_position_c.x - (Char_Move.x/2),camera_position_c.y - 0.5f,camera_position_c.z - (Char_Move.z/2) )
                 * Matrix_Rotate_X(x)//TODO OBJ comeca um pouco rotacionado
-                * Matrix_Rotate_Z(z)
-                * Matrix_Scale(0.25,0.25,0.25);
+                * Matrix_Rotate_Z(z);
+                //* Matrix_Scale(0.25,0.25,0.25);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, BUNNY);
-        DrawVirtualObject("the_bunny");
+        glUniform1i(g_object_id_uniform, CHICKEN);
+        DrawVirtualObject("Chicken");
 
         // Imprimimos na tela os ângulos de Euler que controlam a rotação do
         // terceiro cubo.
