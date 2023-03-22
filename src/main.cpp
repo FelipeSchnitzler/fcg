@@ -196,6 +196,7 @@ bool g_MiddleMouseButtonPressed = false; // Análogo para botão do meio do mous
 bool g_APressed = false;
 bool g_DPressed = false;
 bool g_WPressed = false;
+bool g_SPressed = false;
 
 // Variáveis que definem a câmera em coordenadas esféricas, controladas pelo
 // usuário através do mouse (veja função CursorPosCallback()). A posição
@@ -346,9 +347,9 @@ int main(int argc, char *argv[])
     float prev_time = (float)glfwGetTime();
     // float speed = 1.5f;
     const float Turn_Speed = M_PI / 540.0;
-    float g_CameraX = 0.0f;
+    /*float g_CameraX = 0.0f;
     float g_CameraY = 0.0f;
-    float g_CameraZ = 0.0f;
+    float g_CameraZ = 0.0f;*/
     Player player = Player(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 
     float MoveDelta = 0.0f;
@@ -377,11 +378,11 @@ int main(int argc, char *argv[])
         // variáveis g_CameraDistance, g_CameraPhi, e g_CameraTheta são
         // controladas pelo mouse do usuário. Veja as funções CursorPosCallback()
         // e ScrollCallback().
-        float r = camera.distance;
+        /*float r = camera.distance;
 
         float y = r * sin(camera.phi);
         float z = r * cos(camera.phi) * cos(camera.theta);
-        float x = r * cos(camera.phi) * sin(camera.theta);
+        float x = r * cos(camera.phi) * sin(camera.theta);*/
 
         // Abaixo definimos as varáveis que efetivamente definem a câmera virtual.
         // Veja slides 195-227 e 229-234 do documento Aula_08_Sistemas_de_Coordenadas.pdf.
@@ -408,7 +409,7 @@ int main(int argc, char *argv[])
         prev_time = current_time;
 
         player.updatePosition(delta_t);
-        camera.updateCamera(player.position);
+        camera.updateCamera(player.position, delta_t);
 
         if (g_DPressed)
         {
@@ -431,6 +432,10 @@ int main(int argc, char *argv[])
         if (g_WPressed)
         {
             player.updateSpeed(10, delta_t);
+        }
+        if (g_SPressed)
+        {
+            player.updateSpeed(-10, delta_t);
         }
 
         // Computamos a matriz "View" utilizando os parâmetros da câmera para
@@ -1333,6 +1338,76 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mod)
         if (action == GLFW_RELEASE)
         {
             g_WPressed = false;
+        }
+    }
+
+    if (key == GLFW_KEY_S)
+    {
+        if (action == GLFW_PRESS)
+        {
+            g_SPressed = true;
+        }
+
+        if (action == GLFW_RELEASE)
+        {
+            g_SPressed = false;
+        }
+    }
+
+    if (key == GLFW_KEY_C && action == GLFW_PRESS)
+    {
+        camera.freeCam = !camera.freeCam;
+    }
+
+    if (key == GLFW_KEY_UP)
+    {
+        if (action == GLFW_PRESS)
+        {
+            camera.UpArrowPressed = true;
+        }
+
+        if (action == GLFW_RELEASE)
+        {
+            camera.UpArrowPressed = false;
+        }
+    }
+
+    if (key == GLFW_KEY_DOWN)
+    {
+        if (action == GLFW_PRESS)
+        {
+            camera.DownArrowPressed = true;
+        }
+
+        if (action == GLFW_RELEASE)
+        {
+            camera.DownArrowPressed = false;
+        }
+    }
+
+    if (key == GLFW_KEY_RIGHT)
+    {
+        if (action == GLFW_PRESS)
+        {
+            camera.RightArrowPressed = true;
+        }
+
+        if (action == GLFW_RELEASE)
+        {
+            camera.RightArrowPressed = false;
+        }
+    }
+
+    if (key == GLFW_KEY_LEFT)
+    {
+        if (action == GLFW_PRESS)
+        {
+            camera.LeftArrowPressed = true;
+        }
+
+        if (action == GLFW_RELEASE)
+        {
+            camera.LeftArrowPressed = false;
         }
     }
 }
