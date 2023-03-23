@@ -40,16 +40,16 @@ public:
 
     void updateCamera(glm::vec4 playerPosition,float delta_t)
     {
-        if (!freeCam)
+        if (!this->freeCam)
         {//camera orbital
             this->look_at = playerPosition;
             this->look_at.y += 0.2f;//deslocamento necessario para ir ao centro do objeto
 
 
 
-            this->position.x = this->distance * cos(this->phi) * sin(this->theta);
-            this->position.y = this->distance * sin(this->phi);
-            this->position.z = this->distance * cos(this->phi) * cos(this->theta);
+            this->position.x = this->distance * cos(this->phi) * sin(this->theta) + this->look_at.x;
+            this->position.y = this->distance * sin(this->phi) + this->look_at.y;
+            this->position.z = this->distance * cos(this->phi) * cos(this->theta) + this->look_at.z;
 
             this->view = this->look_at - this->position;
         }else
@@ -114,5 +114,21 @@ public:
 
         if (this->theta < phimin)
             this->theta = phimin;
+    }
+
+    void updateOrbitalCamAngle(float dx, float dy)
+    {
+        if(!this->freeCam)
+        {
+            UpdateCameraAngle(dx,dy);
+        }
+    }
+
+    void updatefreeCamAngle(float dx, float dy)
+    {
+        if(this->freeCam)
+        {
+            UpdateCameraAngle(dx,dy);
+        }
     }
 };

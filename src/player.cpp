@@ -32,7 +32,7 @@ public:
 
     void updatePosition(float delta_t)
     {
-        this->movement.x += this->movement.x * this->speed * delta_t; // mantem o personagem sempre em movimento
-        this->movement.z += this->movement.z * this->speed * delta_t;
+        this->position.x += this->movement.x * this->speed * delta_t; // mantem o personagem sempre em movimento
+        this->position.z += this->movement.z * this->speed * delta_t;
     }
 };

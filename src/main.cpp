@@ -418,7 +418,7 @@ int main(int argc, char *argv[])
             player.movement.z = old_movement.x * sin(Turn_Speed) + old_movement.z * cos(Turn_Speed);
             MoveDelta = dotproduct(old_movement, player.movement);
             //UpdateCameraAngle(MoveDelta * delta_t, 0.0f); // rotaciona a camera
-            camera.UpdateCameraAngle(MoveDelta * delta_t, 0.0f);
+            camera.updateOrbitalCamAngle(MoveDelta * delta_t, 0.0f);
         }
         if (g_APressed)
         {
@@ -427,7 +427,7 @@ int main(int argc, char *argv[])
             player.movement.z = -old_movement.x * sin(Turn_Speed) + old_movement.z * cos(Turn_Speed);
             MoveDelta = dotproduct(old_movement, player.movement);
             //UpdateCameraAngle(-MoveDelta * delta_t, 0.0f); // rotaciona a camera
-            camera.UpdateCameraAngle(-MoveDelta * delta_t, 0.0f);
+            camera.updateOrbitalCamAngle(-MoveDelta * delta_t, 0.0f);
         }
         if (g_WPressed)
         {
