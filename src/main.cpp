@@ -309,6 +309,7 @@ int main(int argc, char *argv[])
     // Carregamos duas imagens para serem utilizadas como textura
     LoadTextureImage("../../data/tc-earth_daymap_surface.jpg");      // TextureImage0
     LoadTextureImage("../../data/tc-earth_nightmap_citylights.gif"); // TextureImage1
+    LoadTextureImage("../../data/Texture1.jpg");      // TextureImage0
 
     // Construímos a representação de objetos geométricos através de malhas de triângulos
     ObjModel spheremodel("../../data/sphere.obj");
@@ -323,7 +324,7 @@ int main(int argc, char *argv[])
     ComputeNormals(&planemodel);
     BuildTrianglesAndAddToVirtualScene(&planemodel);
 
-    ObjModel chickenmodel("../../data/chicken.obj");
+    ObjModel chickenmodel("../../data/E9PNT2CY4XV59X6HKA1W7NVDO.obj");
     ComputeNormals(&chickenmodel);
     BuildTrianglesAndAddToVirtualScene(&chickenmodel);
 
@@ -503,11 +504,12 @@ int main(int argc, char *argv[])
         DrawVirtualObject("the_plane");
 
         // Desenhamos a galinha
-        model = Matrix_Translate(player.position.x, player.position.y, player.position.z);
-        //* Matrix_Scale(0.25,0.25,0.25);
+        model = Matrix_Translate(player.position.x, player.position.y, player.position.z)
+                * Matrix_Rotate_Y(-M_PI/2)//rotate 90°
+                * Matrix_Scale(0.25,0.25,0.25);
         glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
         glUniform1i(g_object_id_uniform, CHICKEN);
-        DrawVirtualObject("Chicken");
+        DrawVirtualObject("Object_Texture1.jpg");
 
         // Imprimimos na tela os ângulos de Euler que controlam a rotação do
         // terceiro cubo.

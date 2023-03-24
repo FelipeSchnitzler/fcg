@@ -124,19 +124,27 @@ void main()
     }
     else if( object_id == CHICKEN )
     {
-        vec4 bbox_center = (bbox_min + bbox_max) / 2.0;
+        /*vec4 bbox_center = (bbox_min + bbox_max) / 2.0;
         vec4 pl = bbox_center + normalize(position_model - bbox_center);
         pl = pl - bbox_center;
 
         float theta = atan(pl.x,pl.z);
         float phi = asin(pl.y);
         U = (theta + M_PI) / (2*M_PI);
-        V = (phi + M_PI_2) / M_PI;
+        V = (phi + M_PI_2) / M_PI;*/
+        U = texcoords.x;
+        V = texcoords.y;
+
     }
 
 
     // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
     vec3 Kd0 = texture(TextureImage0, vec2(U,V)).rgb;
+
+    if ( object_id == CHICKEN )
+    {
+        Kd0 = texture(TextureImage2, vec2(U,V)).rgb;
+    }
 
     // Equação de Iluminação
     float lambert = max(0,dot(n,l));
