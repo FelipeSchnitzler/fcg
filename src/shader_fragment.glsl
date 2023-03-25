@@ -23,6 +23,7 @@ uniform mat4 projection;
 #define BUNNY   1
 #define PLANE   2
 #define CHICKEN 3
+#define EGG     4
 uniform int object_id;
 
 // Parâmetros da axis-aligned bounding box (AABB) do modelo
@@ -122,7 +123,7 @@ void main()
         U = texcoords.x;
         V = texcoords.y;
     }
-    else if( object_id == CHICKEN )
+    else if( object_id == CHICKEN ||  object_id == EGG)
     {
         /*vec4 bbox_center = (bbox_min + bbox_max) / 2.0;
         vec4 pl = bbox_center + normalize(position_model - bbox_center);
@@ -144,6 +145,9 @@ void main()
     if ( object_id == CHICKEN )
     {
         Kd0 = texture(TextureImage2, vec2(U,V)).rgb;
+    }else if (object_id == EGG)
+    {
+        Kd0 = texture(TextureImage1, vec2(U,V)).rgb;
     }
 
     // Equação de Iluminação

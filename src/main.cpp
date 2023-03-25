@@ -50,6 +50,7 @@
 #include "matrices.h"
 #include "player.cpp"
 #include "camera.cpp"
+#include "egg.cpp"
 
 // Estrutura que representa um modelo geométrico carregado a partir de um
 // arquivo ".obj". Veja https://en.wikipedia.org/wiki/Wavefront_.obj_file .
@@ -197,6 +198,7 @@ bool g_APressed = false;
 bool g_DPressed = false;
 bool g_WPressed = false;
 bool g_SPressed = false;
+bool g_SpacePressed = false;
 
 // Variáveis que definem a câmera em coordenadas esféricas, controladas pelo
 // usuário através do mouse (veja função CursorPosCallback()). A posição
@@ -214,6 +216,7 @@ float g_ForearmAngleX = 0.0f;
 // Variáveis que controlam translação do torso
 float g_TorsoPositionX = 0.0f;
 float g_TorsoPositionY = 0.0f;
+const float floorY = -2.0f;
 
 // Variável que controla o tipo de projeção utilizada: perspectiva ou ortográfica.
 bool g_UsePerspectiveProjection = true;
@@ -308,7 +311,7 @@ int main(int argc, char *argv[])
 
     // Carregamos duas imagens para serem utilizadas como textura
     LoadTextureImage("../../data/tc-earth_daymap_surface.jpg");      // TextureImage0
-    LoadTextureImage("../../data/tc-earth_nightmap_citylights.gif"); // TextureImage1
+    LoadTextureImage("../../data/pm0000_00_egg.jpg"); // TextureImage1
     LoadTextureImage("../../data/Texture1.jpg");      // TextureImage0
 
     // Construímos a representação de objetos geométricos através de malhas de triângulos
@@ -324,9 +327,13 @@ int main(int argc, char *argv[])
     ComputeNormals(&planemodel);
     BuildTrianglesAndAddToVirtualScene(&planemodel);
 
-    ObjModel chickenmodel("../../data/E9PNT2CY4XV59X6HKA1W7NVDO.obj");
+    ObjModel chickenmodel("../../data/chicken1.obj");
     ComputeNormals(&chickenmodel);
     BuildTrianglesAndAddToVirtualScene(&chickenmodel);
+
+    ObjModel eggmodel("../../data/egg.obj");
+    ComputeNormals(&eggmodel);
+    BuildTrianglesAndAddToVirtualScene(&eggmodel);
 
     if (argc > 1)
     {
@@ -352,6 +359,9 @@ int main(int argc, char *argv[])
     float g_CameraY = 0.0f;
     float g_CameraZ = 0.0f;*/
     Player player = Player(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+    std::vector<Egg> eggs;
+    bool eggCreated = false;
+    const float eggResize = 0.05f;
 
     float MoveDelta = 0.0f;
     // Ficamos em um loop infinito, renderizando, até que o usuário feche a janela
@@ -412,6 +422,15 @@ int main(int argc, char *argv[])
         player.updatePosition(delta_t);
         camera.updateCamera(player.position, delta_t);
 
+        for (unsigned int i=0; i < eggs.size();i++)
+        {
+            eggs[i].updateEgg(delta_t);
+            if (eggs[i].floorColision(floorY,eggResize))
+            {
+                eggs.erase(eggs.begin()+i);
+            }
+        }
+
         if (g_DPressed)
         {
             glm::vec4 old_movement = player.movement;
@@ -437,6 +456,15 @@ int main(int argc, char *argv[])
         if (g_SPressed)
         {
             player.updateSpeed(-10, delta_t);
+        }
+        if (g_SpacePressed && !eggCreated)
+        {
+            eggs.push_back(Egg(player.position));
+            eggCreated = true;
+        }
+        else if (!g_SpacePressed)
+        {
+            eggCreated = false;
         }
 
         // Computamos a matriz "View" utilizando os parâmetros da câmera para
@@ -480,10 +508,11 @@ int main(int argc, char *argv[])
         glUniformMatrix4fv(g_view_uniform, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(g_projection_uniform, 1, GL_FALSE, glm::value_ptr(projection));
 
-#define SPHERE 0
-#define BUNNY 1
-#define PLANE 2
+#define SPHERE  0
+#define BUNNY   1
+#define PLANE   2
 #define CHICKEN 3
+#define EGG     4
 
         // Desenhamos o modelo da esfera
         // model = Matrix_Translate(-1.0f, 0.0f, 0.0f) * Matrix_Rotate_Z(0.6f) * Matrix_Rotate_X(0.2f) * Matrix_Rotate_Y(g_AngleY + (float)glfwGetTime() * 0.1f);
@@ -498,7 +527,7 @@ int main(int argc, char *argv[])
         // DrawVirtualObject("the_bunny");
 
         // Desenhamos o plano do chão
-        model = Matrix_Scale(50.0, 1.0, 50.0) * Matrix_Translate(0.0f, -2.0f, 0.0f);
+        model = Matrix_Scale(50.0, 1.0, 50.0) * Matrix_Translate(0.0f, floorY, 0.0f);
         glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
         glUniform1i(g_object_id_uniform, PLANE);
         DrawVirtualObject("the_plane");
@@ -511,6 +540,15 @@ int main(int argc, char *argv[])
         glUniform1i(g_object_id_uniform, CHICKEN);
         DrawVirtualObject("Object_Texture1.jpg");
 
+        for (const Egg& i : eggs)// for loop copied from https://www.programiz.com/cpp-programming/vectors
+        {
+            model = Matrix_Translate(i.position.x,i.position.y,i.position.z)
+                    * Matrix_Scale(eggResize,eggResize,eggResize);
+            glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+            glUniform1i(g_object_id_uniform, EGG);
+            DrawVirtualObject("Object_pm0000_00_egg.jpg");
+        }
+
         // Imprimimos na tela os ângulos de Euler que controlam a rotação do
         // terceiro cubo.
         TextRendering_ShowEulerAngles(window);
@@ -522,7 +560,7 @@ int main(int argc, char *argv[])
         // por segundo (frames per second).
         TextRendering_ShowFramesPerSecond(window);
 
-        TextRendering_ShowPlayerSpeed(window, player);
+        //TextRendering_ShowPlayerSpeed(window, player);
 
         // O framebuffer onde OpenGL executa as operações de renderização não
         // é o mesmo que está sendo mostrado para o usuário, caso contrário
@@ -1267,15 +1305,16 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mod)
     }
 
     // Se o usuário apertar a tecla espaço, resetamos os ângulos de Euler para zero.
-    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+    if (key == GLFW_KEY_SPACE )
     {
-        g_AngleX = 0.0f;
-        g_AngleY = 0.0f;
-        g_AngleZ = 0.0f;
-        g_ForearmAngleX = 0.0f;
-        g_ForearmAngleZ = 0.0f;
-        g_TorsoPositionX = 0.0f;
-        g_TorsoPositionY = 0.0f;
+        if (action == GLFW_PRESS)
+        {
+            g_SpacePressed = true;
+        }else if (action == GLFW_RELEASE)
+        {
+            g_SpacePressed = false;
+        }
+
     }
 
     // Se o usuário apertar a tecla P, utilizamos projeção perspectiva.
