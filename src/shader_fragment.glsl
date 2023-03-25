@@ -24,6 +24,8 @@ uniform mat4 projection;
 #define PLANE   2
 #define CHICKEN 3
 #define EGG     4
+#define GOOMBA  5
+
 uniform int object_id;
 
 // Parâmetros da axis-aligned bounding box (AABB) do modelo
@@ -34,6 +36,7 @@ uniform vec4 bbox_max;
 uniform sampler2D TextureImage0;
 uniform sampler2D TextureImage1;
 uniform sampler2D TextureImage2;
+uniform sampler2D TextureImage3;
 
 // O valor de saída ("out") de um Fragment Shader é a cor final do fragmento.
 out vec4 color;
@@ -123,7 +126,7 @@ void main()
         U = texcoords.x;
         V = texcoords.y;
     }
-    else if( object_id == CHICKEN ||  object_id == EGG)
+    else if( object_id == CHICKEN ||  object_id == EGG || object_id == GOOMBA)
     {
         /*vec4 bbox_center = (bbox_min + bbox_max) / 2.0;
         vec4 pl = bbox_center + normalize(position_model - bbox_center);
@@ -148,6 +151,9 @@ void main()
     }else if (object_id == EGG)
     {
         Kd0 = texture(TextureImage1, vec2(U,V)).rgb;
+    }else if (object_id == GOOMBA)
+    {
+        Kd0 = texture(TextureImage3, vec2(U,V)).rgb;
     }
 
     // Equação de Iluminação

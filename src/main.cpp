@@ -48,9 +48,15 @@
 // Headers locais, definidos na pasta "include/"
 #include "utils.h"
 #include "matrices.h"
+
+
 #include "player.cpp"
 #include "camera.cpp"
 #include "egg.cpp"
+#ifndef COLLISIONS_H_INCLUDED
+    #include "collisions.h"
+#endif // COLLISIONS_H_INCLUDED
+
 
 // Estrutura que representa um modelo geométrico carregado a partir de um
 // arquivo ".obj". Veja https://en.wikipedia.org/wiki/Wavefront_.obj_file .
@@ -312,7 +318,8 @@ int main(int argc, char *argv[])
     // Carregamos duas imagens para serem utilizadas como textura
     LoadTextureImage("../../data/tc-earth_daymap_surface.jpg");      // TextureImage0
     LoadTextureImage("../../data/pm0000_00_egg.jpg"); // TextureImage1
-    LoadTextureImage("../../data/Texture1.jpg");      // TextureImage0
+    LoadTextureImage("../../data/Texture1.jpg");      // TextureImage2
+    LoadTextureImage("../../data/Material.012 Base Color.png");// TextureImage3
 
     // Construímos a representação de objetos geométricos através de malhas de triângulos
     ObjModel spheremodel("../../data/sphere.obj");
@@ -334,6 +341,10 @@ int main(int argc, char *argv[])
     ObjModel eggmodel("../../data/egg.obj");
     ComputeNormals(&eggmodel);
     BuildTrianglesAndAddToVirtualScene(&eggmodel);
+
+    ObjModel goombamodel("../../data/goomba.obj");
+    ComputeNormals(&goombamodel);
+    BuildTrianglesAndAddToVirtualScene(&goombamodel);
 
     if (argc > 1)
     {
@@ -362,6 +373,9 @@ int main(int argc, char *argv[])
     std::vector<Egg> eggs;
     bool eggCreated = false;
     const float eggResize = 0.05f;
+
+
+    const float goombaResize = 0.2f;
 
     float MoveDelta = 0.0f;
     // Ficamos em um loop infinito, renderizando, até que o usuário feche a janela
@@ -425,7 +439,7 @@ int main(int argc, char *argv[])
         for (unsigned int i=0; i < eggs.size();i++)
         {
             eggs[i].updateEgg(delta_t);
-            if (eggs[i].floorColision(floorY,eggResize))
+            if(eggs[i].floorColision(floorY,eggResize))
             {
                 eggs.erase(eggs.begin()+i);
             }
@@ -513,6 +527,7 @@ int main(int argc, char *argv[])
 #define PLANE   2
 #define CHICKEN 3
 #define EGG     4
+#define GOOMBA  5
 
         // Desenhamos o modelo da esfera
         // model = Matrix_Translate(-1.0f, 0.0f, 0.0f) * Matrix_Rotate_Z(0.6f) * Matrix_Rotate_X(0.2f) * Matrix_Rotate_Y(g_AngleY + (float)glfwGetTime() * 0.1f);
@@ -548,6 +563,13 @@ int main(int argc, char *argv[])
             glUniform1i(g_object_id_uniform, EGG);
             DrawVirtualObject("Object_pm0000_00_egg.jpg");
         }
+
+        model = Matrix_Translate(0.0f, floorY+(1.25f*goombaResize), 0.0f)
+                * Matrix_Scale(goombaResize,goombaResize,goombaResize);
+        glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+        glUniform1i(g_object_id_uniform, GOOMBA);
+        DrawVirtualObject("Object_Material_012_0");
+
 
         // Imprimimos na tela os ângulos de Euler que controlam a rotação do
         // terceiro cubo.
@@ -716,6 +738,7 @@ void LoadShadersFromFiles()
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage0"), 0);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage1"), 1);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage2"), 2);
+    glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage3"), 3);
     glUseProgram(0);
 }
 
