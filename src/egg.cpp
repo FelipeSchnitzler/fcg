@@ -13,7 +13,7 @@ public:
     {
         this->position = initial_position;
         this->position.y -= 0.175f;
-        this->gravity = 0.00f;
+        this->gravity = 0.015f;
     }
 
     void updateEgg(float delta_t)
