@@ -210,10 +210,10 @@ bool g_SpacePressed = false;
 // usuário através do mouse (veja função CursorPosCallback()). A posição
 // efetiva da câmera é calculada dentro da função main(), dentro do loop de
 // renderização.
-/*float g_CameraTheta = M_PI / 4.0f; // Ângulo no plano ZX em relação ao eixo Z
+/*float g_CameraTheta = -M_PI / 2.0f; // Ângulo no plano ZX em relação ao eixo Z
 float g_CameraPhi = 0.5f;          // Ângulo em relação ao eixo Y
 float g_CameraDistance = 0.5f;     // Distância da câmera para a origem*/
-Camera camera = Camera(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), M_PI / 4.0f, 0.5f);
+Camera camera = Camera(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), -M_PI / 2.0f, 0.5f);
 
 // Variáveis que controlam rotação do antebraço
 float g_ForearmAngleZ = 0.0f;
@@ -448,28 +448,28 @@ int main(int argc, char *argv[])
         if (g_DPressed)
         {
             glm::vec4 old_movement = player.movement;
-            player.movement.x = old_movement.x * cos(Turn_Speed) - old_movement.z * sin(Turn_Speed); // rotaciona o movimento do personagem
-            player.movement.z = old_movement.x * sin(Turn_Speed) + old_movement.z * cos(Turn_Speed);
+            player.movement = Matrix_Rotate_Y(-Turn_Speed) * player.movement;
             MoveDelta = dotproduct(old_movement, player.movement);
+            player.normalizeMovement();
             //UpdateCameraAngle(MoveDelta * delta_t, 0.0f); // rotaciona a camera
-            camera.updateOrbitalCamAngle(MoveDelta * delta_t, 0.0f);
+            //camera.updateOrbitalCamAngle(MoveDelta * delta_t, 0.0f);
         }
         if (g_APressed)
         {
             glm::vec4 old_movement = player.movement;
-            player.movement.x = old_movement.x * cos(Turn_Speed) - old_movement.z * sin(Turn_Speed); // rotaciona o movimento do personagem
-            player.movement.z = -old_movement.x * sin(Turn_Speed) + old_movement.z * cos(Turn_Speed);
+            player.movement = Matrix_Rotate_Y(Turn_Speed) * player.movement;
             MoveDelta = dotproduct(old_movement, player.movement);
+            player.normalizeMovement();
             //UpdateCameraAngle(-MoveDelta * delta_t, 0.0f); // rotaciona a camera
-            camera.updateOrbitalCamAngle(-MoveDelta * delta_t, 0.0f);
+            //camera.updateOrbitalCamAngle(-MoveDelta * delta_t, 0.0f);
         }
         if (g_WPressed)
         {
-            player.updateSpeed(10, delta_t);
+            player.updateSpeed(1, delta_t);
         }
         if (g_SPressed)
         {
-            player.updateSpeed(-10, delta_t);
+            player.updateSpeed(-1, delta_t);
         }
         if (g_SpacePressed && !eggCreated)
         {
@@ -547,13 +547,30 @@ int main(int argc, char *argv[])
         glUniform1i(g_object_id_uniform, PLANE);
         DrawVirtualObject("the_plane");
 
-        // Desenhamos a galinha
-        model = Matrix_Translate(player.position.x, player.position.y, player.position.z)
-                * Matrix_Rotate_Y(-M_PI/2)//rotate 90°
-                * Matrix_Scale(0.25,0.25,0.25);
-        glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, CHICKEN);
-        DrawVirtualObject("Object_Texture1.jpg");
+        if(player.movement.z >=0)
+        {
+            // Desenhamos a galinha
+            model = Matrix_Translate(player.position.x, player.position.y, player.position.z)
+                    * Matrix_Rotate_Y(M_PI/2)//rotate 90°
+                    * Matrix_Rotate_Y(-acos(player.movement.x/sqrt(pow(player.movement.x,2)+pow(player.movement.z,2))))
+                    //* Matrix_Rotate_Y(player.movement.z)
+                    * Matrix_Scale(0.25,0.25,0.25);
+            glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+            glUniform1i(g_object_id_uniform, CHICKEN);
+            DrawVirtualObject("Object_Texture1.jpg");
+        }else
+        {
+            // Desenhamos a galinha
+            model = Matrix_Translate(player.position.x, player.position.y, player.position.z)
+                    * Matrix_Rotate_Y(M_PI/2)//rotate 90°
+                    * Matrix_Rotate_Y(acos(player.movement.x/sqrt(pow(player.movement.x,2)+pow(player.movement.z,2))))
+                    //* Matrix_Rotate_Y(player.movement.z)
+                    * Matrix_Scale(0.25,0.25,0.25);
+            glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+            glUniform1i(g_object_id_uniform, CHICKEN);
+            DrawVirtualObject("Object_Texture1.jpg");
+        }
+
 
         for (const Egg& i : eggs)// for loop copied from https://www.programiz.com/cpp-programming/vectors
         {

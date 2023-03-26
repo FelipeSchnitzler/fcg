@@ -13,14 +13,14 @@ public:
     Player(glm::vec4 initial_position)
     {
         this->speed = 0.0f;
-        this->movement = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
+        this->movement = glm::vec4(1.0f, 0.0f, 0.0f, 0.0f);
         this->position = initial_position;
         this->position.w = 1.0f;
     }
 
     void updateSpeed(float acceleration, float delta_t)
     {
-        if (this->speed + acceleration != 0.0)
+        if (this->speed + acceleration >= 0.0 && this->speed + acceleration <=5.0f)
         {
             this->speed = this->speed + acceleration * delta_t;
         }
@@ -34,5 +34,12 @@ public:
     {
         this->position.x += this->movement.x * this->speed * delta_t; // mantem o personagem sempre em movimento
         this->position.z += this->movement.z * this->speed * delta_t;
+    }
+
+    void normalizeMovement()
+    {
+        this->movement.x = this->movement.x/norm(this->movement);
+        this->movement.y = this->movement.y/norm(this->movement);
+        this->movement.z = this->movement.z/norm(this->movement);
     }
 };
