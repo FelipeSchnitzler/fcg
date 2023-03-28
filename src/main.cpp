@@ -155,6 +155,7 @@ void TextRendering_ShowEulerAngles(GLFWwindow *window);
 void TextRendering_ShowProjection(GLFWwindow *window);
 void TextRendering_ShowFramesPerSecond(GLFWwindow *window);
 void TextRendering_ShowPlayerSpeed(GLFWwindow *window, Player player);
+void TextRendering_ShowPoints(GLFWwindow *window,int points);
 
 // Funções callback para comunicação com o sistema operacional e interação do
 // usuário. Veja mais comentários nas definições das mesmas, abaixo.
@@ -375,15 +376,12 @@ int main(int argc, char *argv[])
     glFrontFace(GL_CCW);
 
     float prev_time = (float)glfwGetTime();
-    // float speed = 1.5f;
     const float Turn_Speed = M_PI / 540.0;
-    /*float g_CameraX = 0.0f;
-    float g_CameraY = 0.0f;
-    float g_CameraZ = 0.0f;*/
     std::vector<Egg> eggs;
     bool eggCreated = false;
     const float eggResize = 0.05f;
 
+    int points = 0;
 
     srand((float)glfwGetTime());
     for (int i = 0; i < 10; i++)
@@ -392,7 +390,7 @@ int main(int argc, char *argv[])
     }
     const float goombaResize = 0.2f;
 
-    float MoveDelta = 0.0f;
+    //float MoveDelta = 0.0f;
     // Ficamos em um loop infinito, renderizando, até que o usuário feche a janela
 
     while (!glfwWindowShouldClose(window))
@@ -414,36 +412,6 @@ int main(int argc, char *argv[])
         // Pedimos para a GPU utilizar o programa de GPU criado acima (contendo
         // os shaders de vértice e fragmentos).
         glUseProgram(g_GpuProgramID);
-
-        // Computamos a posição da câmera utilizando coordenadas esféricas.  As
-        // variáveis g_CameraDistance, g_CameraPhi, e g_CameraTheta são
-        // controladas pelo mouse do usuário. Veja as funções CursorPosCallback()
-        // e ScrollCallback().
-        /*float r = camera.distance;
-
-        float y = r * sin(camera.phi);
-        float z = r * cos(camera.phi) * cos(camera.theta);
-        float x = r * cos(camera.phi) * sin(camera.theta);*/
-
-        // Abaixo definimos as varáveis que efetivamente definem a câmera virtual.
-        // Veja slides 195-227 e 229-234 do documento Aula_08_Sistemas_de_Coordenadas.pdf.
-        //glm::vec4 camera_position_c = glm::vec4(g_CameraX, g_CameraY, g_CameraZ, 1.0f); // Ponto "c", centro da câmera
-        // glm::vec4 camera_lookat_l    = glm::vec4(0.0f,0.0f,0.0f,1.0f); // Ponto "l", para onde a câmera (look-at) estará sempre olhando
-        //glm::vec4 camera_view_vector = glm::vec4(-x, -y, -z, 0.0f);     // Vetor "view", sentido para onde a câmera está virada
-        //glm::vec4 camera_up_vector = glm::vec4(0.0f, 1.0f, 0.0f, 0.0f); // Vetor "up" fixado para apontar para o "céu" (eito Y global)
-
-        // calculo vetores da camera
-        /*glm::vec4 camera_w = glm::vec4(-camera_view_vector.x / norm(camera_view_vector),
-                                       -camera_view_vector.y / norm(camera_view_vector),
-                                       -camera_view_vector.z / norm(camera_view_vector),
-                                       0.0f);*/
-
-        /*glm::vec4 cross = crossproduct(camera_up_vector,camera_w);
-
-        glm::vec4 camera_u = glm::vec4(cross.x/norm(cross),
-                                       cross.y/norm(cross),
-                                       cross.z/norm(cross),
-                                       0.0f);*/
 
         float current_time = (float)glfwGetTime();
         float delta_t = current_time - prev_time;
@@ -478,7 +446,8 @@ int main(int argc, char *argv[])
                         enemys.erase(enemys.begin()+j);
                         CreateEnemy(current_time);
                         eggs.erase(eggs.begin()+i);
-                        printf("\nENEMY KILLED\n");
+                        points+= pow((player.position.y + 1),2);
+                        player.position.y+= pow(points,2)/100;
                     }
                 }
             }
@@ -487,18 +456,18 @@ int main(int argc, char *argv[])
 
         if (g_DPressed)
         {
-            glm::vec4 old_movement = player.movement;
+            //glm::vec4 old_movement = player.movement;
             player.movement = Matrix_Rotate_Y(-Turn_Speed) * player.movement;
-            MoveDelta = dotproduct(old_movement, player.movement);
+            //MoveDelta = dotproduct(old_movement, player.movement);
             normalizePlayerMovement();
             //UpdateCameraAngle(MoveDelta * delta_t, 0.0f); // rotaciona a camera
             //camera.updateOrbitalCamAngle(MoveDelta * delta_t, 0.0f);
         }
         if (g_APressed)
         {
-            glm::vec4 old_movement = player.movement;
+            //glm::vec4 old_movement = player.movement;
             player.movement = Matrix_Rotate_Y(Turn_Speed) * player.movement;
-            MoveDelta = dotproduct(old_movement, player.movement);
+            //MoveDelta = dotproduct(old_movement, player.movement);
             normalizePlayerMovement();
             //UpdateCameraAngle(-MoveDelta * delta_t, 0.0f); // rotaciona a camera
             //camera.updateOrbitalCamAngle(-MoveDelta * delta_t, 0.0f);
@@ -644,6 +613,7 @@ int main(int argc, char *argv[])
         // Imprimimos na tela informação sobre o número de quadros renderizados
         // por segundo (frames per second).
         TextRendering_ShowFramesPerSecond(window);
+        TextRendering_ShowPoints(window,points);
 
         //TextRendering_ShowPlayerSpeed(window, player);
 
@@ -1887,6 +1857,16 @@ void TextRendering_ShowPlayerSpeed(GLFWwindow *window, Player player)
 
     TextRendering_PrintString(window, buffer, 0.0f + (numchars + 1) * charwidth, 1.0f - lineheight, 1.0f);
 }
+
+void TextRendering_ShowPoints(GLFWwindow *window,int points)
+{
+    std::string buffer = std::to_string(points);
+
+    float lineheight = TextRendering_LineHeight(window);
+
+    TextRendering_PrintString(window, buffer, -1.0f, 1.0f - lineheight, 1.0f);
+}
+
 
 void CreateEnemy(float initial_time)
 {
