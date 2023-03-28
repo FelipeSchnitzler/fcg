@@ -26,7 +26,7 @@ public:
         this->lifetime = initial_lifetime;
 
 
-        // valores dos pontos de controle retirados de https://spencermortensen.com/articles/bezier-circle/
+        //FONTE valores dos pontos de controle retirados de https://spencermortensen.com/articles/bezier-circle/
         this->controlPoints[0] = glm::vec4(0.0f,0.0f,1.00005519f,1.0f);
         this->controlPoints[1] = glm::vec4(0.55342686f,0.0f,0.99873585f,1.0f);
         this->controlPoints[2] = glm::vec4(0.99873585f,0.0f,0.55342686f,1.0f);

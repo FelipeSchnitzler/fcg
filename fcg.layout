@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_layout_file>
 	<FileVersion major="1" minor="0" />
-	<ActiveTarget name="Release (CBlocks 17.12 32-bit)" />
-	<File name="include\matrices.h" open="0" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<ActiveTarget name="Debug (CBlocks 17.12 32-bit)" />
+	<File name="include\matrices.h" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="7921" topLine="240" />
-		</Cursor>
-	</File>
-	<File name="src\egg.cpp" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="842" topLine="3" />
+			<Cursor1 position="1232" topLine="0" />
 		</Cursor>
 	</File>
 	<File name="include\glm\detail\type_vec4.hpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -19,17 +14,12 @@
 	</File>
 	<File name="src\main.cpp" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="2" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1888" topLine="79" />
+			<Cursor1 position="25679" topLine="567" />
 		</Cursor>
 	</File>
-	<File name="include\glad\glad.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\egg.cpp" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="139853" topLine="2943" />
-		</Cursor>
-	</File>
-	<File name="src\shader_fragment.glsl" open="1" top="1" tabpos="3" split="0" active="1" splitpos="0" zoom_1="2" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="5711" topLine="148" />
+			<Cursor1 position="244" topLine="0" />
 		</Cursor>
 	</File>
 	<File name="include\utils.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -37,9 +27,14 @@
 			<Cursor1 position="55" topLine="0" />
 		</Cursor>
 	</File>
-	<File name="src\collisions.cpp" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="src\enemy.cpp" open="1" top="1" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="970" topLine="8" />
+			<Cursor1 position="1149" topLine="20" />
+		</Cursor>
+	</File>
+	<File name="src\collisions.h" open="1" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="399" topLine="0" />
 		</Cursor>
 	</File>
 	<File name="src\textrendering.cpp" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -52,14 +47,29 @@
 			<Cursor1 position="4158" topLine="173" />
 		</Cursor>
 	</File>
+	<File name="src\collisions.cpp" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1635" topLine="28" />
+		</Cursor>
+	</File>
+	<File name="src\shader_fragment.glsl" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="2" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="3230" topLine="57" />
+		</Cursor>
+	</File>
+	<File name="src\player.cpp" open="1" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1205" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="include\glad\glad.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="139853" topLine="2943" />
+		</Cursor>
+	</File>
 	<File name="src\shader_vertex.glsl" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="2" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="185" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="src\enemy.cpp" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="945" topLine="45" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>

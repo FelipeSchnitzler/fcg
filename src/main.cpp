@@ -581,7 +581,7 @@ int main(int argc, char *argv[])
         }
 
 
-        for (const Egg& i : eggs)// for loop copied from https://www.programiz.com/cpp-programming/vectors
+        for (const Egg& i : eggs)//FONTE https://www.programiz.com/cpp-programming/vectors
         {
             model = Matrix_Translate(i.position.x,i.position.y,i.position.z)
                     * Matrix_Scale(eggResize,eggResize,eggResize);
@@ -590,7 +590,7 @@ int main(int argc, char *argv[])
             DrawVirtualObject("Object_pm0000_00_egg.jpg");
         }
 
-        for(const Goomba& i : enemys)
+        for(const Goomba& i : enemys)//FONTE https://www.programiz.com/cpp-programming/vectors
         {
             model = Matrix_Translate(i.position.x, i.position.y+(1.25f*goombaResize), i.position.z)
                     * Matrix_Translate(i.center.x,i.center.y,i.center.z)
