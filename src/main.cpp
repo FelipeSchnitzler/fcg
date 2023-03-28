@@ -30,6 +30,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <algorithm>
+#include <ctime>
 
 // Headers das bibliotecas OpenGL
 #include <glad/glad.h>  // Criação de contexto OpenGL 3.3
@@ -47,12 +48,15 @@
 
 // Headers locais, definidos na pasta "include/"
 #include "utils.h"
-#include "matrices.h"
+#ifndef _MATRICES_H
+    #include "matrices.h"
+#endif
 
 
 #include "player.cpp"
 #include "camera.cpp"
 #include "egg.cpp"
+#include "enemy.cpp"
 #ifndef COLLISIONS_H_INCLUDED
     #include "collisions.h"
 #endif // COLLISIONS_H_INCLUDED
@@ -162,6 +166,11 @@ void MouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
 void CursorPosCallback(GLFWwindow *window, double xpos, double ypos);
 void ScrollCallback(GLFWwindow *window, double xoffset, double yoffset);
 
+void CreateEnemy(float initial_time);
+void normalizePlayerMovement();
+void mapBorderCheck();
+
+
 // Definimos uma estrutura que armazenará dados necessários para renderizar
 // cada objeto da cena virtual.
 struct SceneObject
@@ -214,6 +223,8 @@ bool g_SpacePressed = false;
 float g_CameraPhi = 0.5f;          // Ângulo em relação ao eixo Y
 float g_CameraDistance = 0.5f;     // Distância da câmera para a origem*/
 Camera camera = Camera(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), -M_PI / 2.0f, 0.5f);
+std::vector<Goomba> enemys;
+Player player = Player(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 
 // Variáveis que controlam rotação do antebraço
 float g_ForearmAngleZ = 0.0f;
@@ -316,7 +327,7 @@ int main(int argc, char *argv[])
     LoadShadersFromFiles();
 
     // Carregamos duas imagens para serem utilizadas como textura
-    LoadTextureImage("../../data/tc-earth_daymap_surface.jpg");      // TextureImage0
+    LoadTextureImage("../../data/grass.png");      // TextureImage0 Downloaded from https://opengameart.org/content/grass-texture
     LoadTextureImage("../../data/pm0000_00_egg.jpg"); // TextureImage1
     LoadTextureImage("../../data/Texture1.jpg");      // TextureImage2
     LoadTextureImage("../../data/Material.012 Base Color.png");// TextureImage3
@@ -369,16 +380,21 @@ int main(int argc, char *argv[])
     /*float g_CameraX = 0.0f;
     float g_CameraY = 0.0f;
     float g_CameraZ = 0.0f;*/
-    Player player = Player(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
     std::vector<Egg> eggs;
     bool eggCreated = false;
     const float eggResize = 0.05f;
 
 
+    srand((float)glfwGetTime());
+    for (int i = 0; i < 10; i++)
+    {
+        CreateEnemy(prev_time);
+    }
     const float goombaResize = 0.2f;
 
     float MoveDelta = 0.0f;
     // Ficamos em um loop infinito, renderizando, até que o usuário feche a janela
+
     while (!glfwWindowShouldClose(window))
     {
         // Aqui executamos as operações de renderização
@@ -434,7 +450,17 @@ int main(int argc, char *argv[])
         prev_time = current_time;
 
         player.updatePosition(delta_t);
+        mapBorderCheck();
         camera.updateCamera(player.position, delta_t);
+
+        for (unsigned int i=0; i < enemys.size();i++)
+        {
+            if(enemys[i].updateEnemy(delta_t))
+            {
+                enemys.erase(enemys.begin()+i);
+                CreateEnemy(current_time);
+            }
+        }
 
         for (unsigned int i=0; i < eggs.size();i++)
         {
@@ -442,15 +468,29 @@ int main(int argc, char *argv[])
             if(eggs[i].floorColision(floorY,eggResize))
             {
                 eggs.erase(eggs.begin()+i);
+
+            }else
+            {
+                for(unsigned int j=0; j < enemys.size();j++)
+                {
+                    if(collisionSphereSphere(eggs[i].position,1.25f*eggResize,enemys[j].getGlobalCoordinates(),1.25f*goombaResize))
+                    {
+                        enemys.erase(enemys.begin()+j);
+                        CreateEnemy(current_time);
+                        eggs.erase(eggs.begin()+i);
+                        printf("\nENEMY KILLED\n");
+                    }
+                }
             }
         }
+
 
         if (g_DPressed)
         {
             glm::vec4 old_movement = player.movement;
             player.movement = Matrix_Rotate_Y(-Turn_Speed) * player.movement;
             MoveDelta = dotproduct(old_movement, player.movement);
-            player.normalizeMovement();
+            normalizePlayerMovement();
             //UpdateCameraAngle(MoveDelta * delta_t, 0.0f); // rotaciona a camera
             //camera.updateOrbitalCamAngle(MoveDelta * delta_t, 0.0f);
         }
@@ -459,7 +499,7 @@ int main(int argc, char *argv[])
             glm::vec4 old_movement = player.movement;
             player.movement = Matrix_Rotate_Y(Turn_Speed) * player.movement;
             MoveDelta = dotproduct(old_movement, player.movement);
-            player.normalizeMovement();
+            normalizePlayerMovement();
             //UpdateCameraAngle(-MoveDelta * delta_t, 0.0f); // rotaciona a camera
             //camera.updateOrbitalCamAngle(-MoveDelta * delta_t, 0.0f);
         }
@@ -581,11 +621,17 @@ int main(int argc, char *argv[])
             DrawVirtualObject("Object_pm0000_00_egg.jpg");
         }
 
-        model = Matrix_Translate(0.0f, floorY+(1.25f*goombaResize), 0.0f)
-                * Matrix_Scale(goombaResize,goombaResize,goombaResize);
-        glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, GOOMBA);
-        DrawVirtualObject("Object_Material_012_0");
+        for(const Goomba& i : enemys)
+        {
+            model = Matrix_Translate(i.position.x, i.position.y+(1.25f*goombaResize), i.position.z)
+                    * Matrix_Translate(i.center.x,i.center.y,i.center.z)
+                    * Matrix_Scale(goombaResize,goombaResize,goombaResize);
+            glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+            glUniform1i(g_object_id_uniform, GOOMBA);
+            DrawVirtualObject("Object_Material_012_0");
+        }
+
+
 
 
         // Imprimimos na tela os ângulos de Euler que controlam a rotação do
@@ -1840,4 +1886,48 @@ void TextRendering_ShowPlayerSpeed(GLFWwindow *window, Player player)
     float charwidth = TextRendering_CharWidth(window);
 
     TextRendering_PrintString(window, buffer, 0.0f + (numchars + 1) * charwidth, 1.0f - lineheight, 1.0f);
+}
+
+void CreateEnemy(float initial_time)
+{
+    bool colision;
+    glm::vec4 new_center;
+    do
+    {
+        colision = true;
+        new_center = glm::vec4((rand() %90)-45,floorY,(rand() %90)-45,1.0f);//valores entre -45 e +45
+        //new_center = glm::vec4(1.0f,floorY,0.0f,1.0f);//debug
+        for(unsigned int i = 0; i < enemys.size(); i++)
+        {
+            if (collisionSphereSphere(new_center,1.0f,enemys[i].center,1.0f))
+            {
+                colision = false;
+            }
+        }
+    }while (!colision);
+    float lifetime = (rand() % 10) + 1000; //valores entre 10 e 20
+
+    enemys.push_back(Goomba(new_center,initial_time,lifetime));
+}
+
+
+void normalizePlayerMovement()
+{
+    player.movement.x = player.movement.x/norm(player.movement);
+    player.movement.y = player.movement.y/norm(player.movement);
+    player.movement.z = player.movement.z/norm(player.movement);
+}
+
+void mapBorderCheck()
+{
+    if(collisionCubePlane(player.position - player.BBoffset,player.position + player.BBoffset,glm::vec4(0.0f,0.0f,50.0f,1.0f),glm::vec4(0.0f,0.0f,-1.0f,0.0f))
+      || collisionCubePlane(player.position - player.BBoffset,player.position + player.BBoffset,glm::vec4(0.0f,0.0f,-50.0f,1.0f),glm::vec4(0.0f,0.0f,1.0f,0.0f)))
+    {
+        player.position.z = -player.position.z;
+    }
+    if(collisionCubePlane(player.position - player.BBoffset,player.position + player.BBoffset,glm::vec4(50.0f,0.0f,0.0f,1.0f),glm::vec4(-1.0f,0.0f,0.0f,0.0f))
+      || collisionCubePlane(player.position - player.BBoffset,player.position + player.BBoffset,glm::vec4(-50.0f,0.0f,0.0f,1.0f),glm::vec4(1.0f,0.0f,0.0f,0.0f)))
+    {
+        player.position.x = -player.position.x;
+    }
 }
