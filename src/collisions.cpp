@@ -65,3 +65,20 @@ bool collisionCubePlane(glm::vec4 BBMin,glm::vec4 BBMax,glm::vec4 planePoint,glm
     }
     return false;
 }
+
+bool collisionCubeSphere(glm::vec4 BBMin,glm::vec4 BBMax,glm::vec4 sphereCenter, float sphereRadius)
+{
+    float MinDistance;
+    float MaxDistance;
+
+    MinDistance = sqrtf(pow(BBMin.x-sphereCenter.x,2)
+                      + pow(BBMin.y-sphereCenter.y,2)
+                      + pow(BBMin.z-sphereCenter.z,2));
+
+    MaxDistance = sqrtf(pow(BBMax.x-sphereCenter.x,2)
+                      + pow(BBMax.y-sphereCenter.y,2)
+                      + pow(BBMax.z-sphereCenter.z,2));
+
+    if( (MaxDistance >= sphereRadius &&  MinDistance <= sphereRadius) || (MaxDistance <= sphereRadius &&  MinDistance >= sphereRadius)) return( true );
+    return false;
+}

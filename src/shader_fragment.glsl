@@ -37,6 +37,7 @@ uniform sampler2D TextureImage0;
 uniform sampler2D TextureImage1;
 uniform sampler2D TextureImage2;
 uniform sampler2D TextureImage3;
+uniform sampler2D TextureImage4;
 
 // O valor de saída ("out") de um Fragment Shader é a cor final do fragmento.
 out vec4 color;
@@ -96,6 +97,7 @@ void main()
         float phi = asin(pl.y);
         U = (theta + M_PI) / (2*M_PI);
         V = (phi + M_PI_2) / M_PI;
+        l = n;
     }
     else if ( object_id == BUNNY )
     {
@@ -154,6 +156,9 @@ void main()
     }else if (object_id == GOOMBA)
     {
         Kd0 = texture(TextureImage3, vec2(U,V)).rgb;
+    }else if (object_id == SPHERE)
+    {
+        Kd0 = texture(TextureImage4, vec2(U,V)).rgb;
     }
 
     // Equação de Iluminação

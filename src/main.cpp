@@ -332,9 +332,10 @@ int main(int argc, char *argv[])
     LoadTextureImage("../../data/pm0000_00_egg.jpg"); // TextureImage1
     LoadTextureImage("../../data/Texture1.jpg");      // TextureImage2
     LoadTextureImage("../../data/Material.012 Base Color.png");// TextureImage3
+    LoadTextureImage("../../data/industrial_sunset_puresky_1k.hdr");// TextureImage4
 
     // Construímos a representação de objetos geométricos através de malhas de triângulos
-    ObjModel spheremodel("../../data/sphere.obj");
+    ObjModel spheremodel("../../data/sphere-1.obj");
     ComputeNormals(&spheremodel);
     BuildTrianglesAndAddToVirtualScene(&spheremodel);
 
@@ -539,10 +540,10 @@ int main(int argc, char *argv[])
 #define GOOMBA  5
 
         // Desenhamos o modelo da esfera
-        // model = Matrix_Translate(-1.0f, 0.0f, 0.0f) * Matrix_Rotate_Z(0.6f) * Matrix_Rotate_X(0.2f) * Matrix_Rotate_Y(g_AngleY + (float)glfwGetTime() * 0.1f);
-        // glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-        // glUniform1i(g_object_id_uniform, SPHERE);
-        // DrawVirtualObject("the_sphere");
+        model = Matrix_Scale(50.0f, 50.0f, 50.0f);
+        glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
+        glUniform1i(g_object_id_uniform, SPHERE);
+        DrawVirtualObject("the_sphere");
 
         // // Desenhamos o modelo do coelho
         // model = Matrix_Translate(1.0f, 0.0f, 0.0f) * Matrix_Rotate_X(g_AngleX + (float)glfwGetTime() * 0.1f);
@@ -773,6 +774,7 @@ void LoadShadersFromFiles()
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage1"), 1);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage2"), 2);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage3"), 3);
+    glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureImage4"), 4);
     glUseProgram(0);
 }
 
@@ -1885,7 +1887,7 @@ void CreateEnemy(float initial_time)
             }
         }
     }while (!colision);
-    float lifetime = (rand() % 10) + 1000; //valores entre 10 e 20
+    float lifetime = (rand() % 10) + 10; //valores entre 10 e 20
 
     enemys.push_back(Goomba(new_center,initial_time,lifetime));
 }
@@ -1900,14 +1902,9 @@ void normalizePlayerMovement()
 
 void mapBorderCheck()
 {
-    if(collisionCubePlane(player.position - player.BBoffset,player.position + player.BBoffset,glm::vec4(0.0f,0.0f,50.0f,1.0f),glm::vec4(0.0f,0.0f,-1.0f,0.0f))
-      || collisionCubePlane(player.position - player.BBoffset,player.position + player.BBoffset,glm::vec4(0.0f,0.0f,-50.0f,1.0f),glm::vec4(0.0f,0.0f,1.0f,0.0f)))
+    if(collisionCubeSphere(player.position - player.BBoffset,player.position + player.BBoffset,glm::vec4(0.0f,0.0f,0.0f,1.0f),50.f))
     {
         player.position.z = -player.position.z;
-    }
-    if(collisionCubePlane(player.position - player.BBoffset,player.position + player.BBoffset,glm::vec4(50.0f,0.0f,0.0f,1.0f),glm::vec4(-1.0f,0.0f,0.0f,0.0f))
-      || collisionCubePlane(player.position - player.BBoffset,player.position + player.BBoffset,glm::vec4(-50.0f,0.0f,0.0f,1.0f),glm::vec4(1.0f,0.0f,0.0f,0.0f)))
-    {
         player.position.x = -player.position.x;
     }
 }
