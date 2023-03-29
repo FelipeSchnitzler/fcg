@@ -357,6 +357,7 @@ int main(int argc, char *argv[])
     ObjModel goombamodel("../../data/goomba.obj");
     ComputeNormals(&goombamodel);
     BuildTrianglesAndAddToVirtualScene(&goombamodel);
+    //PrintObjModelInfo(&goombamodel);
 
     if (argc > 1)
     {
@@ -376,7 +377,7 @@ int main(int argc, char *argv[])
     glFrontFace(GL_CCW);
 
     float prev_time = (float)glfwGetTime();
-    const float Turn_Speed = M_PI / 540.0;
+    const float Turn_Speed = M_PI;
     std::vector<Egg> eggs;
     bool eggCreated = false;
     const float eggResize = 0.05f;
@@ -392,7 +393,6 @@ int main(int argc, char *argv[])
 
     //float MoveDelta = 0.0f;
     // Ficamos em um loop infinito, renderizando, até que o usuário feche a janela
-
     while (!glfwWindowShouldClose(window))
     {
         // Aqui executamos as operações de renderização
@@ -457,7 +457,7 @@ int main(int argc, char *argv[])
         if (g_DPressed)
         {
             //glm::vec4 old_movement = player.movement;
-            player.movement = Matrix_Rotate_Y(-Turn_Speed) * player.movement;
+            player.movement = Matrix_Rotate_Y(-Turn_Speed*delta_t) * player.movement;
             //MoveDelta = dotproduct(old_movement, player.movement);
             normalizePlayerMovement();
             //UpdateCameraAngle(MoveDelta * delta_t, 0.0f); // rotaciona a camera
@@ -466,7 +466,7 @@ int main(int argc, char *argv[])
         if (g_APressed)
         {
             //glm::vec4 old_movement = player.movement;
-            player.movement = Matrix_Rotate_Y(Turn_Speed) * player.movement;
+            player.movement = Matrix_Rotate_Y(Turn_Speed*delta_t) * player.movement;
             //MoveDelta = dotproduct(old_movement, player.movement);
             normalizePlayerMovement();
             //UpdateCameraAngle(-MoveDelta * delta_t, 0.0f); // rotaciona a camera
@@ -598,6 +598,7 @@ int main(int argc, char *argv[])
             glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
             glUniform1i(g_object_id_uniform, GOOMBA);
             DrawVirtualObject("Object_Material_012_0");
+
         }
 
 
@@ -605,10 +606,10 @@ int main(int argc, char *argv[])
 
         // Imprimimos na tela os ângulos de Euler que controlam a rotação do
         // terceiro cubo.
-        TextRendering_ShowEulerAngles(window);
+        //TextRendering_ShowEulerAngles(window);
 
         // Imprimimos na informação sobre a matriz de projeção sendo utilizada.
-        TextRendering_ShowProjection(window);
+        //TextRendering_ShowProjection(window);
 
         // Imprimimos na tela informação sobre o número de quadros renderizados
         // por segundo (frames per second).
@@ -869,7 +870,6 @@ void BuildTrianglesAndAddToVirtualScene(ObjModel *model)
     std::vector<float> model_coefficients;
     std::vector<float> normal_coefficients;
     std::vector<float> texture_coefficients;
-
     for (size_t shape = 0; shape < model->shapes.size(); ++shape)
     {
         size_t first_index = indices.size();
