@@ -17,12 +17,12 @@ public:
         this->position = initial_position;
         this->position.y -= 0.175f;
         this->position.w = 1.0f;
-        this->gravity = 0.015f;
+        this->gravity = 1.5f;
     }
 
     void updateEgg(float delta_t)
     {
-        this->position.y -= this->gravity;
+        this->position.y -= this->gravity * delta_t;
     }
 
     bool floorColision(float floorY, float eggResize)
