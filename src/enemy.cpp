@@ -98,7 +98,7 @@ public:
     glm::vec4 getGlobalCoordinates()
     {
         glm::vec4 globalCoords = (this->position + this->center);
-        globalCoords.w = 1.0f;//ERRADO POREM DIMINUI O NR DE OPERAÇÕES NECESSARIAS
+        globalCoords.w = 1.0f;
         return globalCoords;
     }
 

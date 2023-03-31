@@ -461,21 +461,13 @@ int main(int argc, char *argv[])
 
         if (g_DPressed)
         {
-            //glm::vec4 old_movement = player.movement;
             player.movement = Matrix_Rotate_Y(-Turn_Speed*delta_t) * player.movement;
-            //MoveDelta = dotproduct(old_movement, player.movement);
             normalizePlayerMovement();
-            //UpdateCameraAngle(MoveDelta * delta_t, 0.0f); // rotaciona a camera
-            //camera.updateOrbitalCamAngle(MoveDelta * delta_t, 0.0f);
         }
         if (g_APressed)
         {
-            //glm::vec4 old_movement = player.movement;
             player.movement = Matrix_Rotate_Y(Turn_Speed*delta_t) * player.movement;
-            //MoveDelta = dotproduct(old_movement, player.movement);
             normalizePlayerMovement();
-            //UpdateCameraAngle(-MoveDelta * delta_t, 0.0f); // rotaciona a camera
-            //camera.updateOrbitalCamAngle(-MoveDelta * delta_t, 0.0f);
         }
         if (g_WPressed)
         {
@@ -549,12 +541,6 @@ int main(int argc, char *argv[])
         glUniform1i(g_object_id_uniform, SPHERE);
         DrawVirtualObject("the_sphere");
 
-        // // Desenhamos o modelo do coelho
-        // model = Matrix_Translate(1.0f, 0.0f, 0.0f) * Matrix_Rotate_X(g_AngleX + (float)glfwGetTime() * 0.1f);
-        // glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
-        // glUniform1i(g_object_id_uniform, BUNNY);
-        // DrawVirtualObject("the_bunny");
-
         // Desenhamos o plano do chão
         model = Matrix_Scale(50.0, 1.0, 50.0) * Matrix_Translate(0.0f, floorY, 0.0f);
         glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
@@ -567,7 +553,6 @@ int main(int argc, char *argv[])
             model = Matrix_Translate(player.position.x, player.position.y, player.position.z)
                     * Matrix_Rotate_Y(M_PI/2)//rotate 90°
                     * Matrix_Rotate_Y(-acos(player.movement.x/sqrt(pow(player.movement.x,2)+pow(player.movement.z,2))))
-                    //* Matrix_Rotate_Y(player.movement.z)
                     * Matrix_Scale(0.25,0.25,0.25);
             glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
             glUniform1i(g_object_id_uniform, CHICKEN);
@@ -578,7 +563,6 @@ int main(int argc, char *argv[])
             model = Matrix_Translate(player.position.x, player.position.y, player.position.z)
                     * Matrix_Rotate_Y(M_PI/2)//rotate 90°
                     * Matrix_Rotate_Y(acos(player.movement.x/sqrt(pow(player.movement.x,2)+pow(player.movement.z,2))))
-                    //* Matrix_Rotate_Y(player.movement.z)
                     * Matrix_Scale(0.25,0.25,0.25);
             glUniformMatrix4fv(g_model_uniform, 1, GL_FALSE, glm::value_ptr(model));
             glUniform1i(g_object_id_uniform, CHICKEN);
@@ -606,22 +590,10 @@ int main(int argc, char *argv[])
 
         }
 
-
-
-
-        // Imprimimos na tela os ângulos de Euler que controlam a rotação do
-        // terceiro cubo.
-        //TextRendering_ShowEulerAngles(window);
-
-        // Imprimimos na informação sobre a matriz de projeção sendo utilizada.
-        //TextRendering_ShowProjection(window);
-
         // Imprimimos na tela informação sobre o número de quadros renderizados
         // por segundo (frames per second).
         TextRendering_ShowFramesPerSecond(window);
         TextRendering_ShowPoints(window,points);
-
-        //TextRendering_ShowPlayerSpeed(window, player);
 
         // O framebuffer onde OpenGL executa as operações de renderização não
         // é o mesmo que está sendo mostrado para o usuário, caso contrário
