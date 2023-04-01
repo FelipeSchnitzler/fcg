@@ -91,7 +91,6 @@ public:
             x = this->controlPoints[i].x;
             this->controlPoints[i].x = this->controlPoints[i].z;
             this->controlPoints[i].z = -x;
-
         }
     }
 
